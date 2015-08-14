@@ -20,15 +20,15 @@ int main(void)
        // fflush(stderr);
         setbuf(stdin, NULL);
         system("clear");
-        printf("       ###### #           #         #        ##############\n");
-        printf("     ###      #           #        # #              #      \n");
-        printf("  ###         #           #       #   #             #      \n");
-        printf("###           #           #      #     #            #      \n");
-        printf("#             #############     #########           #      \n");
-        printf("###           #           #    #         #          #      \n");
-        printf("  ###         #           #   #           #         #      \n");
-        printf("     ###      #           #  #             #        #      \n");
-        printf("       ###### #           # #               #       #      \n");
+        printf(" ###########  #         #     #####     ###########\n");
+        printf(" #            #         #    #     #         #     \n");
+        printf(" #            #         #   #       #        #     \n");
+        printf(" #            #         #  #         #       #     \n");
+        printf(" #            ###########  ###########       #     \n");
+        printf(" #            #         #  #         #       #     \n");
+        printf(" #            #         #  #         #       #     \n");
+        printf(" #            #         #  #         #       #     \n");
+        printf(" ###########  #         #  #         #       #     \n");
         PADDING_80
         NEWLINE
         NEWLINE
@@ -45,7 +45,7 @@ int main(void)
                 login_view();   //登陆界面函数
                 break;
             case 2:
-                //sign_up_view(); //注册界面函数
+                sign_up_view(); //注册界面函数
                 break;
             case 3:
                 return 0;       //退出程序

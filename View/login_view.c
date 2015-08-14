@@ -10,7 +10,7 @@
 #include<termios.h>
 #include<unistd.h>
 #include"view.h"
-//#include"../Model/model.h"
+#include"../Model/model.h"
 
 char getch()
 ///自建getch函数, 用来以'*'显示密码
@@ -29,19 +29,30 @@ char getch()
 int get_password(char password[  ])
 ///get_password是输入密码的函数, 密码会赋给password, 输入的密码以*显示, 控制输入格式
 {
-    int     i = 1;  //i用来统计输入字符个数
+    int     i = 0;  //i用来统计输入字符个数
     printf("密码(小于14位):");
-    while(1) {
+    for(;i<14;i++){
         password[i] = getch();
         if(password[i] == '\n') {
             break;
         }
-        printf("*");
-        i++;
+        if(password[i] == 127) { //键入删除键
+            if(i == 0) {
+                i--;
+                continue;
+            }
+            printf("\b");
+            printf(" ");
+            printf("\b");
+            i -= 2;
+            continue;
+        }
         if( i >= 14 ) {
-            printf("\n密码过长\n");
+            NEWLINE
+            PADDING_30 printf("密码过长\n");
             return -1;
         }
+        printf("*");
     }
     return 0;
 }
@@ -49,43 +60,45 @@ int get_username(char username[  ])
 ///get_username是输入用户名的函数, 用户名会赋给username, 控制输入格式
 {
     int     count = 0;//计算输入字符数
-    int     ch_check;   //ch_check用来检测输入字符是否合法
-    printf("用户名(小于14位, 只能使用数字或字母):");
+    printf("用户名(小于14位):");
     gets(username);
     if((count = sizeof(username)) > 15) {
-        printf("用户名过长\n");
+        NEWLINE
+        PADDING_30 printf("用户名过长\n");
         sleep(1);
         return -1;
     }
     return count-1;
 }
 int login_view(void)
+///login_view是登陆界面函数
 {
     char username[15] = "";
     char password[15] = "";
     system("clear");
-    printf("#######  ########  #####       #     \n");
-    printf("  #   #  #    #    #   #    #######  \n");
-    printf("   ###    ## #     #  #        #     \n");
-    printf("  ## ###### ##     #   # ############\n");
-    printf(" #   #    #   ##   #    #      #     \n");
-    printf("#    ######     #  #####       #     \n");
-    printf("    #      #       #      #    #   # \n");
-    printf("     #    #        #      #    #   # \n");
-    printf(" ##############    #      ########## \n");
+    printf(" #             ############  ###########  #  ###       #\n");
+    printf(" #             #          #  #            #  #  #      #\n");
+    printf(" #             #          #  #            #  #   #     #\n");
+    printf(" #             #          #  #            #  #    #    #\n");
+    printf(" #             #          #  #    ######  #  #     #   #\n");
+    printf(" #             #          #  #         #  #  #      #  #\n");
+    printf(" #             #          #  #         #  #  #       # #\n");
+    printf(" #             #          #  #         #  #  #        ##\n");
+    printf(" ############  ############  ###########  #  #         #\n");
     PADDING_80
     NEWLINE
     NEWLINE
-    if(get_username(username) == -1) {
+    if(get_username(username) == -1) {  //获得用户名
         return -1;
     }
     NEWLINE
-    if(get_password(password) == -1) {
+    if(get_password(password) == -1) {  //获得密码
         return -1;
     }
-    //login_model(username, password);
+
+    login_model(username, password);
     NEWLINE;
-    PADDING_30 printf("登陆成功\n");
-    sleep(1);
+    printf("登陆成功\n");
+    sleep(5);
     return 0;
 }
