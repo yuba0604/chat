@@ -11,6 +11,7 @@
 #include<unistd.h>
 #include"view.h"
 #include"../Model/model.h"
+#include"../_h/format.h"
 
 char getch()
 ///自建getch函数, 用来以'*'显示密码
@@ -96,9 +97,12 @@ int login_view(void)
         return -1;
     }
 
-    login_model(username, password);
-    NEWLINE;
-    printf("登陆成功\n");
+    if( login_signup_model(username, password,1)== 0 ) {//1代表登陆操作
+        NEWLINE;
+        printf("登陆成功\n");
+    } else {
+        NEWLINE;
+        PADDING_30 printf("登陆失败\n");
     sleep(5);
     return 0;
 }

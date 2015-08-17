@@ -7,11 +7,13 @@
 #include<stdio.h>
 #include<string.h>
 #include"../Control/control.h"
-int login_model(char username[  ], char password[  ])
+#include"../_h/struct.h" //引入结构体和MAXSIZE
+int login_signup_model(char username[  ], char password[  ], int flag)
 {
-    user_message package;
-    strncpy(package.username, username, MAXSIZE);
-    strncpy(package.password, password, MAXSIZE);
+    user_message user;
+    strncpy(user.username, username, MAXSIZE);
+    strncpy(user.password, password, MAXSIZE);
+    user.flag = flag;
 
-    return login_control(package);
+    return login_signup_control(user);
 }

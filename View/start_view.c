@@ -7,7 +7,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include"view.h"
-
+#include"../_h/format.h"
 
 
 ///进入程序的第一级菜单
@@ -45,7 +45,7 @@ int main(void)
                 login_view();   //登陆界面函数
                 break;
             case 2:
-                sign_up_view(); //注册界面函数
+                signup_view(); //注册界面函数
                 break;
             case 3:
                 return 0;       //退出程序

@@ -1,5 +1,5 @@
 /*************************************************************************
-	> File Name: sign_up_view.c
+	> File Name: signup_view.c
 	> Note: 
 	> Created Time: 2015年08月14日 星期五 08时40分58秒
  ************************************************************************/
@@ -9,6 +9,7 @@
 #include<string.h>
 #include"view.h"
 #include"../Model/model.h"
+#include"../_h/format.h"
 int get_password_again(char password_again[  ])
 ///get_password_again是再次输入密码的函数, 密码会赋给password, 密码以*显示
 ///输入的密码以*显示, 控制输入格式
@@ -83,9 +84,13 @@ int sign_up_view(void)
         return -1;
     }
 
-    //sign_up_model(username, password);
-    NEWLINE;
-    PADDING_30 printf("注册成功\n");
+    if(login_signup_model(username, password,2)==0) {  //2代表注册操作
+        NEWLINE;
+        PADDING_30 printf("注册成功\n");
+    } else {
+        NEWLINE;
+        PADDING_30 printf("注册失败\n");
+    }
     sleep(1);
     return 0;
 }
