@@ -49,7 +49,7 @@ int main(void)
         break;
     }
 }
-int login_server_temp(user_message user) 
+int login_server(user_message user) //登陆函数
 {
     int     fd;     //文件描述符
     int     rtn;    //返回值
@@ -75,4 +75,14 @@ int login_server_temp(user_message user)
     }
     close(fd);
     return rtn;
+}
+int signup_server(user_message user, user_Node *list) //注册函数
+{
+    int rtn;    //返回值
+    user_Node *p;
+    p = (user_Node *)malloc( sizeof(user_Node) );
+    strcpy( p->data.username, user.username );
+    strcpy( p->data.password, user.password );
+    List_AddTail( list, *p);
+    return 2;    //注册成功
 }

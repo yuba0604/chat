@@ -18,7 +18,7 @@
 int login_signup_control(user_message user)
 {
     int     conn_fd;
-    int     recv_buf;
+    int     recv_buf;       //接收函数的返回值
     struct sockaddr_in serv_addr;    //定义套接字地址
     memset(&sock, 0, sizeof(struct sockaddr_in));   //清空地址所在内存区域
     serv_addr.sin_family = AF_INET;  

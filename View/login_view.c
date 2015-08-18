@@ -74,6 +74,7 @@ int get_username(char username[  ])
 int login_view(void)
 ///login_view是登陆界面函数
 {
+    int  rtn;
     char username[15] = "";
     char password[15] = "";
     system("clear");
@@ -96,13 +97,17 @@ int login_view(void)
     if(get_password(password) == -1) {  //获得密码
         return -1;
     }
-
-    if( login_signup_model(username, password,1)== 0 ) {//1代表登陆操作
+    rtn = login_signup_model(username, password, 1); //1代表登陆操作
+    if( rtn == 1 ) {//rtn == 1代表用户名和密码都正确
         NEWLINE;
         printf("登陆成功\n");
-    } else {
+    } else if( rtn == -1 ) {//rtn == -1代表用户名存在, 密码不正确
         NEWLINE;
         PADDING_30 printf("登陆失败\n");
+    } else if( rtn == -2 ) {//rtn == -2代表用户名不存在
+        NEWLINE;
+        PADDING_30 printf("用户不存在\n");
+    }
     sleep(5);
     return 0;
 }

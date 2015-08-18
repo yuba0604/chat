@@ -14,7 +14,7 @@ typedef struct {
     char username[MAXSIZE];     //存储用户名
     char password[MAXSIZE];     //存储密码
 } user_message;     //用来登陆, 注册的结构体
-struct usr_Node{
+struct usr_Node{        //链表节点
     user_message    data;
     struct usr_Node *next;
     struct usr_Node *prev;

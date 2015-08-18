@@ -84,7 +84,7 @@ int sign_up_view(void)
         return -1;
     }
 
-    if(login_signup_model(username, password,2)==0) {  //2代表注册操作
+    if(login_signup_model(username, password,2)==2) {  //参数2代表注册操作, 返回值2代表注册成功
         NEWLINE;
         PADDING_30 printf("注册成功\n");
     } else {
