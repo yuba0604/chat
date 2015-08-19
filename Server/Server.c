@@ -17,6 +17,8 @@
 #include"../_h/struct.h"
 #define SERV_PORT 4096
 #define LISTENQ   10    //队列最长为10
+
+user_Node *list; 	//链表的头指针
 int main(void)
 {
     int                 sock_fd;                //套接字描述符
@@ -26,7 +28,21 @@ int main(void)
     int                 i;
     user_message        user;                //客户端发送的数据包
     sock_fd = socket( AF_INET, SOCK_STREAM, 0);
-    
+///打开服务器时创建链表从文件中读取数据,便于后续操作----------------------
+    //创建链表
+    List_Create();
+    //把数据读入链表
+    fd = open("../File/_user.txt",O_RDWR|O_CREAT);
+    while(1) {
+        pNew = (user_Node)malloc(sizeof(user_Node));
+        number = read(fd, pNew->data, sizeof(pNew->data));
+        if(number == 0) {
+            break;
+        }
+        List_Insert(pNew);
+    }
+///读取完毕---------------------------------------------------------
+
     memset( &serv_addr, 0, sizeof(struct sockaddr_in) );
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(SERV_PORT);
@@ -48,41 +64,54 @@ int main(void)
         printf("\n");
         break;
     }
+///关闭服务器之前把修改过的链表存入文件---------------------------------
+    //把链表中的数据存入文件
+    user_Node *pWrite = list;   //写入文件的指针
+    while(pWrite != NULL) {
+        write(fd, pWrite->data, sizeof(pWrite->data));
+        pWrite = pWrite->Next;
+    }
+///写入完毕---------------------------------------------------------
 }
 int login_server(user_message user) //登陆函数
 {
-    int     fd;     //文件描述符
     int     rtn;    //返回值
-    int     number; //获取read()的返回值, 判断是否读到文件尾部
-    user_Node   buf;//存放从文件中读取的数据
+    user_Node *pRead_login;   //用于从链表中读取数据的指针
 
-    fd = open("../File/_user.txt", RDONLY);
-    number = 2;     //使number进入循环
-    while( number != 0 ) {
-        if( number = read(fd, &buf.data, sizeof(user_Node)) ) {     //读取文件
-            if( strcmp( user.username, buf.data.username ) == 0 ) {     //判断用户名是否一致
-                if( strcmp( user.password, buf.data.password ) == 0 ) { //判断密码是否一致
-                    rtn = 1;                //用户名和密码都正确
-                } else {
-                    rtn = -1;               //用户名存在, 密码不正确
-                }
+    pRead_login = list;
+    while( pRead != NULL ) {
+        if(strcmp( pRead_login->data.username, user.username ) == 0) {
+            if(strcmp( pRead_login->data.password, user.password ) == 0) {
+                rtn = 1;    //用户名和密码都正确
+                pRead_login->data.status = 1;   //表示在线
             } else {
-                rtn = -2;               //用户名不存在
+                rtn = -1;   //用户名存在, 密码不正确
             }
-        } /*else {
-            //读文件失败, 写入错误日志
-        }*/
+            break;
+        } else {
+            rtn = -2;   //用户名不存在
+        }
+        pRead_login=pRead_login->next;
     }
-    close(fd);
     return rtn;
 }
-int signup_server(user_message user, user_Node *list) //注册函数
+int signup_server(user_message user)  //注册函数
 {
-    int rtn;    //返回值
-    user_Node *p;
-    p = (user_Node *)malloc( sizeof(user_Node) );
-    strcpy( p->data.username, user.username );
-    strcpy( p->data.password, user.password );
-    List_AddTail( list, *p);
-    return 2;    //注册成功
+    user_Node *pRead_signup;    //读链表的指针
+    
+    pRead_signup = list;
+    while(pRead_signup != NULL) {
+        if(strcmp( pRead_signup->data.username, user.username ) == 0) {
+            rtn = -3;   //用户名已存在!不能注册
+            break;
+        } else {
+            rtn = 2;    //用户名可用
+        }
+    }
+    if( rtn == 2 ) {
+        user_Node *pNew_signup;
+        pNew_signup = (user_Node)malloc(sizeof(user_Node));
+        List_Insert(pNew_signup);
+    }
+    return rtn;
 }

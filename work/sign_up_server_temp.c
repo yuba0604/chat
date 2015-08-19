@@ -12,13 +12,25 @@
 #include<unistd.h>
 #include"../_h/struct.h"
 #include"../_h/list.h"
-int signup_server_temp(user_message user, user_Node *list)
+int signup_server_temp(user_message user)
 {
-    user_Node *p;
-    p = (user_Node *)malloc( sizeof(user_Node) );
-    strcpy( p->data.username, user.username );
-    strcpy( p->data.password, user.password );
-    List_AddTail( list, *p);
+    user_Node *pRead_signup;    //读链表的指针
+    
+    pRead_signup = list;
+    while(pRead_signup != NULL) {
+        if(strcmp( pRead_signup->data.username, user.username ) == 0) {
+            rtn = -3;   //用户名已存在!不能注册
+            break;
+        } else {
+            rtn = 2;    //用户名可用
+        }
+    }
+    if( rtn == 2 ) {
+        user_Node *pNew_signup;
+        pNew_signup = (user_Node)malloc(sizeof(user_Node));
+        List_Insert(pNew_signup);
+    }
+    return rtn;
 }
 int main()
 {

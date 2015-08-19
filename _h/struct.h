@@ -10,6 +10,7 @@
 
 typedef struct {
     int  flag;                 //存储何种操作
+    int  status;                //存储是否在线
     int  sock_fd;               //存储套接字描述符, 方便创建线程时传参
     char username[MAXSIZE];     //存储用户名
     char password[MAXSIZE];     //存储密码
@@ -17,7 +18,6 @@ typedef struct {
 struct usr_Node{        //链表节点
     user_message    data;
     struct usr_Node *next;
-    struct usr_Node *prev;
 };
 typedef struct usr_Node user_Node;
 #endif
