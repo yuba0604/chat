@@ -6,7 +6,7 @@
 
 #ifndef _FORMAT_H
 #define _FORMAT_H
-
+#define MAXSIZE 15
 ///以'='填充一行
 #define PADDING_80 for(int i = 0; i < 80; i++){printf("=");}
 ///以' '填充30px, 使选项置于正中央

@@ -4,12 +4,6 @@
 	> Created Time: 2015年08月14日 星期五 08时40分58秒
  ************************************************************************/
 
-#include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
-#include"view.h"
-#include"../Model/model.h"
-#include"../_h/format.h"
 int get_password_again(char password_again[  ])
 ///get_password_again是再次输入密码的函数, 密码会赋给password, 密码以*显示
 ///输入的密码以*显示, 控制输入格式
@@ -48,8 +42,8 @@ int check_password(char password[  ], char password_again[  ])
     }
     return 0;
 }
-int sign_up_view(void)
-///sign_up_view是注册界面函数
+int signup_view(void)
+///signup_view是注册界面函数
 {
     char username[15] = "";         //存放用户名
     char password[15] = "";         //存放第一次密码
@@ -83,12 +77,16 @@ int sign_up_view(void)
         sleep(1);
         return -1;
     }
-
-    if(login_signup_model(username, password,2)==2) {  //参数2代表注册操作, 返回值2代表注册成功
-        NEWLINE;
+    int rtn;
+    rtn=login_signup_model(username, password,2);//参数2代表注册操作
+    if(rtn == 2) {  //返回值2代表注册成功
+        NEWLINE
         PADDING_30 printf("注册成功\n");
+    } else if(rtn == -3) {
+        NEWLINE
+        PADDING_30 printf("用户名已存在\n");
     } else {
-        NEWLINE;
+        NEWLINE
         PADDING_30 printf("注册失败\n");
     }
     sleep(1);

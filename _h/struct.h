@@ -7,13 +7,13 @@
 #ifndef _STRUCT_H
 #define _STRUCT_H
 #define MAXSIZE 15
-
 typedef struct {
     int  flag;                 //存储何种操作
     int  status;                //存储是否在线
-    int  sock_fd;               //存储套接字描述符, 方便创建线程时传参
     char username[MAXSIZE];     //存储用户名
     char password[MAXSIZE];     //存储密码
+    int  client_fd;             //客户端的套接字描述符
+    char object_username[MAXSIZE];  //私聊对象的用户名
 } user_message;     //用来登陆, 注册的结构体
 struct usr_Node{        //链表节点
     user_message    data;

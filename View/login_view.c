@@ -4,21 +4,12 @@
 	> Created Time: 2015年08月13日 星期四 15时41分01秒
  ************************************************************************/
 
-#include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
-#include<termios.h>
-#include<unistd.h>
-#include"view.h"
-#include"../Model/model.h"
-#include"../_h/format.h"
-
 char getch()
 ///自建getch函数, 用来以'*'显示密码
 {
     struct termios oldt, newt;
     int ch;
-    tcgetattr( STDIN_FILENO, &oldt );
+    tcgetattr( STDIN_FILEmZO, &oldt );
     newt = oldt;
     newt.c_lflag &= ~( ICANON | ECHO );
     tcsetattr( STDIN_FILENO, TCSANOW, &newt );

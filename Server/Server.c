@@ -13,22 +13,25 @@
 #include<errno.h>
 #include<arpa/inet.h>
 #include<netinet/in.h>
-//#include<pthread.h>
+#include<pthread.h>
 #include"../_h/struct.h"
+#include"../_h/list.h"
 #define SERV_PORT 4096
 #define LISTENQ   10    //队列最长为10
 
+int login_server(user_message user);//登陆函数
+int signup_server(user_message user);//注册函数
 user_Node *list; 	//链表的头指针
 int main(void)
 {
-    int                 sock_fd;                //套接字描述符
-    struct sockaddr_in  cli_addr, serv_addr;    //客户端地址 服务器地址
+    int                 sock_fd, client_fd;       //套接字描述符
+    struct sockaddr_in  serv_addr;               //服务器地址
     socklen_t           cli_len;                //客户端
-    pthread_t           *thread;                //线程指针
-    int                 i;
-    user_message        user;                //客户端发送的数据包
-    sock_fd = socket( AF_INET, SOCK_STREAM, 0);
-///打开服务器时创建链表从文件中读取数据,便于后续操作----------------------
+    pthread_t           *thread;               //线程指针
+    user_message        user;                 //客户端发送的数据包
+
+
+///打开服务器时创建链表从文件中读取数据,便于后续操作--------------------
     //创建链表
     List_Create();
     //把数据读入链表
@@ -41,37 +44,43 @@ int main(void)
         }
         List_Insert(pNew);
     }
-///读取完毕---------------------------------------------------------
-
-    memset( &serv_addr, 0, sizeof(struct sockaddr_in) );
+///读取完毕-------------------------------------------------------------
+    
+    sock_fd = socket( AF_INET, SOCK_STREAM, 0);//创建套接字
+    memset(&serv_addr, 0, sizeof(struct sockaddr_in));
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(SERV_PORT);
     serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    
+    //本程序将处理所有网络请求
     bind(sock_fd, (struct sockaddr *)&serv_addr, sizeof(struct sockaddr_in));
-
+    //转为监听套接字
     listen(sock_fd, LISTENQ);
-
     cli_len = sizeof(struct sockaddr_in);
+
     while(1) {
-        sock_fd = accept(sock_fd, (struct sockaddr *)&cli_addr, &cli_len);
-        printf("accept a client, ip:%s\n", inet_ntoa(cli_addr.sin_addr));
-        //pthread_create()
-        recv(sock_fd, &user, sizeof(user_message), 0);
-        for(i=0;i<MAXSIZE; i++){
-            printf("%c",user.username[i]);
+        client_fd = accept(sock_fd, (struct sockaddr *)&cli_addr, &cli_len);
+        if(client_fd!=0 && client_fd!=1 && client_fd!= 2) {
+            pthread_t pid;
+            pthread_create(pid,NULL, client_pthread, client_fd);//创建线程处理客户端请求
+            pthread_join(pid);//等待线程结束
         }
-        printf("\n");
-        break;
     }
-///关闭服务器之前把修改过的链表存入文件---------------------------------
-    //把链表中的数据存入文件
-    user_Node *pWrite = list;   //写入文件的指针
-    while(pWrite != NULL) {
-        write(fd, pWrite->data, sizeof(pWrite->data));
-        pWrite = pWrite->Next;
+}
+int *client_pthread(client_fd)//处理客户端请求的线程函数
+{
+    user_message user;
+    recv(client_fd, &user, sizeof(user), 0);
+    user.client_fd = client_fd;     //把套接字描述符传给结构体,便于传输返回值
+
+    switch(user.flag) {
+        case 1:
+        login_server(user);
+
+        case 2:
+        signup_server(user);
+        
     }
-///写入完毕---------------------------------------------------------
+
 }
 int login_server(user_message user) //登陆函数
 {
@@ -79,7 +88,7 @@ int login_server(user_message user) //登陆函数
     user_Node *pRead_login;   //用于从链表中读取数据的指针
 
     pRead_login = list;
-    while( pRead != NULL ) {
+        while( pRead != NULL ) {
         if(strcmp( pRead_login->data.username, user.username ) == 0) {
             if(strcmp( pRead_login->data.password, user.password ) == 0) {
                 rtn = 1;    //用户名和密码都正确
@@ -93,10 +102,12 @@ int login_server(user_message user) //登陆函数
         }
         pRead_login=pRead_login->next;
     }
-    return rtn;
+    send( user.client_fd, &rtn, sizeof(int), 0 );//发送代表结果的返回值
 }
+
 int signup_server(user_message user)  //注册函数
 {
+    int     rtn;        //返回值
     user_Node *pRead_signup;    //读链表的指针
     
     pRead_signup = list;
@@ -112,6 +123,12 @@ int signup_server(user_message user)  //注册函数
         user_Node *pNew_signup;
         pNew_signup = (user_Node)malloc(sizeof(user_Node));
         List_Insert(pNew_signup);
+        //把链表中的数据存入文件
+        user_Node *pWrite = list;   //写入文件的指针
+        while(pWrite != NULL) {
+            write(fd, pWrite->data, sizeof(pWrite->data));
+            pWrite = pWrite->next;
+        }
     }
-    return rtn;
+    send( user.client_fd, &rtn, sizeof(int), 0 );//发送代表结果的返回值
 }
