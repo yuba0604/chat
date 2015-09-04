@@ -17,10 +17,15 @@ typedef struct {
     char object_username[MAXSIZE];//私聊对象的用户名
     int  object_fd;             //私聊对象的套接字描述符
     char message[MESSAGE_SIZE];     //聊天消息
-} user_message;     //用户结构体
+}user_message;     //用户结构体
 struct usr_Node{        //链表节点
     user_message    data;
     struct usr_Node *next;
 };
 typedef struct usr_Node user_Node;
+struct fd_A{
+    int client_fd;
+    int fd;
+};
+typedef struct fd_A fd_package;
 #endif

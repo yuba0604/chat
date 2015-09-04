@@ -21,19 +21,52 @@
 #define LISTENQ   10    //队列最长为10
 
 int login_server(user_message user);//登陆函数
-int signup_server(user_message user);//注册函数
+int signup_server(user_message user, fd_package *ptr_fd);//注册函数
 int whisper_server(user_message user);//私聊函数
 int group_server(user_message user);//群聊函数
+int *client_pthread_server( fd_package *ptr_fd )//处理客户端请求的线程函数
+{
+    int rtn;    //确定是否退出
+    user_message user;
+    recv(ptr_fd->client_fd, &user, sizeof(user), 0);
+    user.client_fd = ptr_fd->client_fd;     //把套接字描述符传给结构体,便于传输返回值
+
+    while(1) {
+        switch(user.flag) {
+            case 1:
+            rtn = login_server(user);
+            break;
+
+            case 2:
+            rtn = signup_server(user,ptr_fd);
+            break;
+
+            case 3:
+            rtn = whisper_server(user);
+            break;
+
+            case 4:
+            rtn = group_server(user);
+            break;
+        }
+    }
+}
+
+
 user_Node *list; 	//链表的头指针
 int main(void)
 {
     int                 fd;                        //file fd
     int                 sock_fd, client_fd;       //套接字描述符
-    struct sockaddr_in  serv_addr;               //服务器地址
+    struct sockaddr_in  cli_addr, serv_addr;     //服务器地址
     socklen_t           cli_len;                //客户端
     pthread_t           *thread;               //线程指针
     user_message        user;                 //客户端发送的数据包
-    user_Node           pNew;                //new pointer
+    user_Node           *pNew;               //new pointer
+    int                 number;             //get read() rtn
+    int                 status;            //pthread_join
+    fd_package          setof_fd;
+    fd_package          *ptr_fd;
 
 
 ///打开服务器时创建链表从文件中读取数据,便于后续操作--------------------
@@ -42,8 +75,8 @@ int main(void)
     //把数据读入链表
     fd = open("../File/_user.txt",O_RDWR|O_CREAT);
     while(1) {
-        pNew = (user_Node)malloc(sizeof(user_Node));
-        number = read(fd, pNew->data, sizeof(pNew->data));
+        pNew = (user_Node*)malloc(sizeof(user_Node));
+        number = read(fd, &pNew->data, sizeof(pNew->data));
         if(number == 0) {
             break;
         }
@@ -61,50 +94,28 @@ int main(void)
     //转为监听套接字
     listen(sock_fd, LISTENQ);
     cli_len = sizeof(struct sockaddr_in);
+    ptr_fd = &setof_fd;
+    setof_fd.fd = fd;//打包
 
     while(1) {
         client_fd = accept(sock_fd, (struct sockaddr *)&cli_addr, &cli_len);
+        ptr_fd->client_fd = client_fd;   //打包
         if(client_fd!=0 && client_fd!=1 && client_fd!= 2) {
             pthread_t pid;
-            pthread_create(pid,NULL, client_pthread, client_fd);//创建线程处理客户端请求
-            pthread_join(pid);//等待线程结束
+            //创建线程处理客户端请求
+            pthread_create((pthread_t *)pid,NULL, (void *)client_pthread_server, ptr_fd);
+            pthread_join(pid,(void *)&status);//等待线程结束
         }
     }
 }
-int *client_pthread(client_fd)//处理客户端请求的线程函数
-{
-    int rtn;    //确定是否退出
-    user_message user;
-    recv(client_fd, &user, sizeof(user), 0);
-    user.client_fd = client_fd;     //把套接字描述符传给结构体,便于传输返回值
 
-    while(1) {
-        switch(user.flag) {
-            case 1:
-            rtn = login_server(user);
-            break;
-
-            case 2:
-            rtn = signup_server(user);
-            break;
-
-            case 3:
-            rtn = whisper_server(user);
-            break;
-
-            case 4:
-            rtn = group_server(user);
-            break;
-        }
-    }
-}
 int login_server(user_message user) //登陆函数
 {
     int     rtn;    //返回值
     user_Node *pRead_login;   //用于从链表中读取数据的指针
 
     pRead_login = list;
-    while( pRead != NULL ) {
+    while( pRead_login != NULL ) {
         if(strcmp( pRead_login->data.username, user.username ) == 0) {
             if(strcmp( pRead_login->data.password, user.password ) == 0) {
                 rtn = 1;    //用户名和密码都正确
@@ -122,7 +133,7 @@ int login_server(user_message user) //登陆函数
     return 0;
 }
 
-int signup_server(user_message user)  //注册函数
+int signup_server(user_message user, fd_package *ptr_fd)  //注册函数
 {
     int     rtn;        //返回值
     user_Node *pRead_signup;    //读链表的指针
@@ -138,12 +149,12 @@ int signup_server(user_message user)  //注册函数
     }
     if( rtn == 2 ) {
         user_Node *pNew_signup;
-        pNew_signup = (user_Node)malloc(sizeof(user_Node));
+        pNew_signup = (user_Node*)malloc(sizeof(user_Node));
         List_Insert(list, pNew_signup);
         //把链表中的数据存入文件
         user_Node *pWrite = list;   //写入文件的指针
         while(pWrite != NULL) {
-            write(fd, pWrite->data, sizeof(pWrite->data));
+            write(ptr_fd->fd, &pWrite->data, sizeof(pWrite->data));
             pWrite = pWrite->next;
         }
     }
@@ -170,7 +181,7 @@ int whisper_server(user_message user)   //聊天函数
         pFind_whisper = list->next;
         while(pFind_whisper->next != NULL) {
             if(pFind_whisper->data.client_fd == user.client_fd) {
-                user.username = pFind_whisper->data.username;
+                strcpy(user.username, pFind_whisper->data.username);
                 break;
             }
         }

@@ -21,6 +21,7 @@ int choose_view(void)
     PADDING_80
     NEWLINE
     NEWLINE
+    online_control();
     PADDING_30 printf("1.私聊\n");
     NEWLINE
     PADDING_30 printf("2.群聊\n");
