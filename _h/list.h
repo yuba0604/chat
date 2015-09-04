@@ -6,12 +6,12 @@
 #include"struct.h"
 
 //创建链表
-List_Create()
+void List_Create(user_Node *list)
 {
-    list=(user_Node)malloc(sizeof(user_Node));
+    list=(user_Node*)malloc(sizeof(user_Node));
 }
 //头插法插入节点
-List_Insert(user_Node *pNew)
+void List_Insert(user_Node *list, user_Node *pNew)
 {
     pNew->next=list;
     list=pNew;

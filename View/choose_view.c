@@ -25,12 +25,16 @@ int choose_view(void)
     NEWLINE
     PADDING_30 printf("2.群聊\n");
     NEWLINE
+    PADDING_30 printf("3.退出\n");
+    NEWLINE
     scanf("%d",flag);
     if( flag == 1 ) {
         whisper_view();
     } else if(flag == 2) {
         group_view();
-    } else {
+    } else if(flag == 3) {
+        return;
+    }else {
         PADDING_30 printf("输入不合法\n");
         sleep(1);
     }

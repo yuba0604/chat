@@ -6,7 +6,7 @@
 
 #ifndef _VIEW_H
 #define _VIEW_H
-
+#include"../_h/struct.h"
 int login_view(void);
 int signup_view(void);
 int main_view(void);

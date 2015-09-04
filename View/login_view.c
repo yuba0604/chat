@@ -92,13 +92,15 @@ int login_view(void)
     if( rtn == 1 ) {//rtn == 1代表用户名和密码都正确
         NEWLINE;
         printf("登陆成功\n");
+        choose_view();     //跳转到聊天界面
     } else if( rtn == -1 ) {//rtn == -1代表用户名存在, 密码不正确
         NEWLINE;
         PADDING_30 printf("登陆失败\n");
+        sleep(5);
     } else if( rtn == -2 ) {//rtn == -2代表用户名不存在
         NEWLINE;
         PADDING_30 printf("用户不存在\n");
+        sleep(5);
     }
-    sleep(5);
     return 0;
 }
