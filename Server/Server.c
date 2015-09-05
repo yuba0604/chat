@@ -24,14 +24,15 @@ int login_server(user_message user);//登陆函数
 int signup_server(user_message user, fd_package *ptr_fd);//注册函数
 int whisper_server(user_message user);//私聊函数
 int group_server(user_message user);//群聊函数
+int online_inquiry(user_message user);//inquiry online user
 int *client_pthread_server( fd_package *ptr_fd )//处理客户端请求的线程函数
 {
     int rtn;    //确定是否退出
     user_message user;
-    recv(ptr_fd->client_fd, &user, sizeof(user), 0);
-    user.client_fd = ptr_fd->client_fd;     //把套接字描述符传给结构体,便于传输返回值
-
     while(1) {
+        recv(ptr_fd->client_fd, &user, sizeof(user), 0);
+        user.client_fd = ptr_fd->client_fd;     //把套接字描述符传给结构体,便于传输返回值
+
         switch(user.flag) {
             case 1:
             rtn = login_server(user);
@@ -47,6 +48,10 @@ int *client_pthread_server( fd_package *ptr_fd )//处理客户端请求的线程
 
             case 4:
             rtn = group_server(user);
+            break;
+
+            case 5:
+            rtn = online_inquiry(user);
             break;
         }
     }
@@ -119,6 +124,7 @@ int login_server(user_message user) //登陆函数
         if(strcmp( pRead_login->data.username, user.username ) == 0) {
             if(strcmp( pRead_login->data.password, user.password ) == 0) {
                 rtn = 1;    //用户名和密码都正确
+                //add login log
                 pRead_login->data.status = 1;   //表示在线
             } else {
                 rtn = -1;   //用户名存在, 密码不正确
@@ -137,6 +143,9 @@ int signup_server(user_message user, fd_package *ptr_fd)  //注册函数
 {
     int     rtn;        //返回值
     user_Node *pRead_signup;    //读链表的指针
+    if(user.username[0]=='\' && user.username[1]=='\') {
+        user.authority = 1;
+    }
     
     pRead_signup = list;
     while(pRead_signup != NULL) {
@@ -205,4 +214,15 @@ int group_server(user_message user)     //群聊函数
             }
         }
     }
+}
+int online_inquiry(user_message user)   //inquiry online user
+{
+    user_Node *pName = list->next;
+    while(pName != NULL) {
+        if(pName->data.status == 1) {
+            strcpy(user.username, pName->data.username);
+            send(user.client_fd, &user, sizeof(user), 0);
+        }
+    }
+    return 0;
 }

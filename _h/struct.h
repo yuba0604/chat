@@ -11,6 +11,7 @@
 typedef struct {
     int  flag;                 //存储何种操作
     int  status;               //存储是否在线
+    int  authority;             //管理员权限
     char username[MAXSIZE];     //存储用户名
     char password[MAXSIZE];     //存储密码
     int  client_fd;             //客户端的套接字描述符
